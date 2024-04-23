@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <title>そろばん
+  </title>
+  <style type="text/css">
+    table.abacus {
+      display: flex;
+      justify-content: center;
+    }
+
+    td.terminal {
+      background: #3d0909;
+      height: 10px;
+    }
+
+    td.number {
+      font-size: 54px;
+      text-align: center;
+    }
+
+    td.number.hide {
+      color: #fff;
+    }
+
+    td.separator {
+      background: #3d0909;
+      background-repeat: no-repeat;
+      background-position: center;
+      height: 15px;
+    }
+
+    td.separator.dot {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='60' fill='rgb(255, 255, 255)' viewBox='0 0 20 20'><circle cx='10' cy='10' r='10'/></svg>");
+    }
+
+    .bread {
+      height: 50px;
+      width: 100px;
+      background-position: center;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60'><path d='M 40 60 L 3 30 L 117 30 L 80 60 Z' fill='%23a20025' /><path d='M 3 30 L 40 0 L 80 0 L 117 30 Z' fill='%23a0522d' /></svg>");
+      background-repeat: no-repeat;
+      color: #fff;
+    }
+
+    .blank {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60'><path d='M 48 60 L 48 0 L 72 00 L 72 60 Z' fill='%23fFd47f' /> </svg>");
+      background-repeat: no-repeat;
+    }
+
+    select.display_digit {
+      width: 100px;
+    }
+
+    button.reset {
+      height: 100px;
+      width: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <table class="abacus">
+    <tr>
+      <td>
+        <fieldset>
+          <legend>数字表示</legend>
+          <label><input type="radio" class="dispmode" name="mode" value="on" checked />する</label>
+          </br>
+          <label><input type="radio" class="dispmode" name="mode" value="off" />しない</label>
+        </fieldset>
+      </td>
+      <td class="number digit10000">0</td>
+      <td class="number digit1000">0</td>
+      <td class="number digit100">0</td>
+      <td class="number digit10">0</td>
+      <td class="number digit1">0</td>
+      <td class="number digit01">0</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+    </tr>
+    <tr>
+      <td rowspan="3"><button class="reset">リセット</button></td>
+      <td data-value="5" class="bread over digit10000"></td>
+      <td data-value="5" class="bread over digit1000"></td>
+      <td data-value="5" class="bread over digit100"></td>
+      <td data-value="5" class="bread over digit10"></td>
+      <td data-value="5" class="bread over digit1"></td>
+      <td data-value="5" class="bread over digit01"></td>
+    </tr>
+    <tr>
+      <td data-value="0" class="bread over digit10000 init blank"></td>
+      <td data-value="0" class="bread over digit1000 init blank"></td>
+      <td data-value="0" class="bread over digit100 init blank"></td>
+      <td data-value="0" class="bread over digit10 init blank"></td>
+      <td data-value="0" class="bread over digit1 init blank"></td>
+      <td data-value="0" class="bread over digit01 init blank"></td>
+    </tr>
+    <tr>
+      <td class="separator"></td>
+      <td class="separator dot"></td>
+      <td class="separator"></td>
+      <td class="separator"></td>
+      <td class="separator dot"></td>
+      <td class="separator"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td data-value="0" class="bread under digit10000 init blank"></td>
+      <td data-value="0" class="bread under digit1000 init blank"></td>
+      <td data-value="0" class="bread under digit100 init blank"></td>
+      <td data-value="0" class="bread under digit10 init blank"></td>
+      <td data-value="0" class="bread under digit1 init blank"></td>
+      <td data-value="0" class="bread under digit01 init blank"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td data-value="1" class="bread under digit10000"></td>
+      <td data-value="1" class="bread under digit1000"></td>
+      <td data-value="1" class="bread under digit100"></td>
+      <td data-value="1" class="bread under digit10"></td>
+      <td data-value="1" class="bread under digit1"></td>
+      <td data-value="1" class="bread under digit01"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td data-value="2" class="bread under digit10000"></td>
+      <td data-value="2" class="bread under digit1000"></td>
+      <td data-value="2" class="bread under digit100"></td>
+      <td data-value="2" class="bread under digit10"></td>
+      <td data-value="2" class="bread under digit1"></td>
+      <td data-value="2" class="bread under digit01"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td data-value="3" class="bread under digit10000"></td>
+      <td data-value="3" class="bread under digit1000"></td>
+      <td data-value="3" class="bread under digit100"></td>
+      <td data-value="3" class="bread under digit10"></td>
+      <td data-value="3" class="bread under digit1"></td>
+      <td data-value="3" class="bread under digit01"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td data-value="4" class="bread under digit10000"></td>
+      <td data-value="4" class="bread under digit1000"></td>
+      <td data-value="4" class="bread under digit100"></td>
+      <td data-value="4" class="bread under digit10"></td>
+      <td data-value="4" class="bread under digit1"></td>
+      <td data-value="4" class="bread under digit01"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+      <td class="terminal"></td>
+    </tr>
+  </table>
+  <script>
+    document.querySelectorAll(".dispmode").forEach(elm => {
+      elm.addEventListener("change", ev => {
+        if (ev.target.value == "on") {
+          document.querySelectorAll(".number").forEach(elm => {
+            elm.classList.remove("hide");
+          });
+        } else if (ev.target.value == "off") {
+          document.querySelectorAll(".number").forEach(elm => {
+            elm.classList.add("hide");
+          });
+        }
+      });
+    });
+    document.querySelector("button.reset").addEventListener("click", ev => {
+      document.querySelectorAll(".bread").forEach(elm => {
+        if (elm.classList.contains("init")) {
+          elm.classList.add("blank");
+        } else {
+          elm.classList.remove("blank");
+        }
+      });
+      document.querySelectorAll(".number").forEach(elm => {
+        elm.textContent = 0;
+      });
+    });
+    document.querySelectorAll(".bread").forEach(elm => {
+      elm.addEventListener("click", ev => {
+        if (ev.target.classList.contains("blank")) {
+          return;
+        }
+        let bread_kind = "";
+        ["over", "under"].forEach(brd => {
+          if (ev.target.classList.contains(brd)) {
+            bread_kind = "." + brd;
+            return;
+          }
+        });
+        let digit_kind = "";
+        ["digit1", "digit10", "digit100", "digit1000", "digit10000", "digit01"].forEach(dgt => {
+          if (ev.target.classList.contains(dgt)) {
+            digit_kind = "." + dgt;
+            return;
+          }
+        });
+
+        document.querySelectorAll(bread_kind + digit_kind).forEach(bread => {
+          bread.classList.remove("blank");
+        });
+        ev.target.classList.add("blank");
+
+        let value = 0;
+        value += Number(document.querySelector(digit_kind + ".over.blank").dataset.value);
+        value += Number(document.querySelector(digit_kind + ".under.blank").dataset.value);
+        document.querySelector(".number" + digit_kind).textContent = value;
+      });
+    });
+  </script>
+</body>
+
+</html>
