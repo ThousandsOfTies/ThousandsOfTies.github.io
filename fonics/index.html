@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <title>フォニックスまとめ</title>
+</head>
+
+<body style="user-select:none">
+  <select id="voice-select" />
+  <input id="voice-test" type="button" value="試聴" />
+  <div id="phonics_table_root">
+    <input type="button" id="pause-sequence-play" value="一時停止"/>
+  </div>
+  <script src="js/phonics_table_maker.js" charset="utf-8"></script>
+  <script src="js/speech_synthesiser.js" charset="utf-8"></script>
+  <script>
+    let ss = new SpeechSynthesiser(document.querySelector('#voice-select'));
+    document.querySelector('#voice-test').addEventListener('click', () => {
+      ss.setVoice(document.querySelector('#voice-select').value);
+      ss.speak("Hello, world!");
+    });
+    var pause_flag;
+    document.querySelector('#pause-sequence-play').addEventListener('click', (ev) => {
+      if (ev.target.value=="一時停止") {
+        ev.target.value="再生再開"
+      } else {
+        ev.target.value="一時停止"
+      }
+      pause_flag = ~pause_flag;
+    });
+    var stop_flag;
+    async function speak_each(words) {
+      stop_flag = false;
+      if (!ss.idle()) {
+        console.log("ss.idle is true");
+        stop_flag = true;
+        ss.cancel();
+        return;
+      }
+      ss.setVoice(document.querySelector('#voice-select').value);
+      for (const word of words) {
+        for (; ;) {
+          if (pause_flag) {
+            let promise = new Promise((resolve, reject) => {
+              setTimeout(() => {
+                resolve(true);
+              }, 200);
+            });
+            let result = await promise;
+            continue;
+          }
+          break;
+        }
+        ss.speak(word.innerText);
+        pt.start(word);
+        for (; ;) {
+          let promise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+              if (ss.idle()) {
+                resolve(1);
+              } else {
+                resolve(0);
+              }
+            }, 200);
+          });
+          let result = await promise;
+          if (result) {
+            break;
+          }
+        }
+        pt.end(word);
+        if (stop_flag) {
+          break;
+        }
+        pt.scroll(word);
+      }
+    }
+
+    let pt = new PhonicsTableMaker(document.querySelector("#phonics_table_root"), (words) => {
+      speak_each(words);
+    });
+
+
+  </script>
+</body>
+
+</html>
