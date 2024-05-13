@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>そろばん</title>
+    <meta http-equiv="Content-Style-Type" content="text/css">
+</head>
+
+<body>
+</body>
+<script>
+    class NumberGenerator {
+        // 実質空関数
+        acceptableDigit = (inVal) => {
+            console.log("called acceptableDigit in parent class")
+            return retval[Math.floor(Math.random() * retval.length)];
+        }
+        // 実質空関数
+        getSeedNumber = () => {
+            console.log("getSeedNumber in NumberCenerator");
+            return 0;
+        }
+        // 実質空関数 常時0リターン
+        getAddSub = () => {
+            let addsub = [];
+            if (this.settings.addsub[0]) { addsub.push(0); }
+            if (this.settings.addsub[1]) { addsub.push(1); }
+            if (addsub.length == 0) {
+                return undefined;
+            }
+            return addsub[Math.floor(Math.random() * addsub.length)];
+        }
+        getNextValue = (sum) => {
+            console.log("getNextValue(" + sum + ");");
+            let retval = 0;
+            for (let i = 0; i < this.settings.digit; i++) {
+                let base_num = Math.floor(sum / Math.pow(10, i)) % 100;
+                console.log("   base number = " + base_num);
+                const ret = this.acceptableDigit(base_num);
+                console.log("   acceptableDigit returns : " + ret);
+                if (ret == undefined) {
+                    return undefined;
+                }
+                const shifted_ret = ret * Math.pow(10, i);
+                if (sum + shifted_ret <= 0) {
+                    break;
+                }
+                sum += shifted_ret;
+                retval += shifted_ret;
+            }
+            return retval;
+        }
+        makeNumbers = () => {
+            if (this.settings.count <= 0) {
+                return [];
+            }
+            let retval = [this.getSeedNumber()];    
+            console.log("************************** seed = " + retval[0] + " ***************************");
+            for (let i = 0; i < this.settings.rank; i++) {
+                const r = this.getNextValue(retval.reduce((sum, elm) => { return sum + elm; }));
+                console.log("getNextValue return " + r + ";");
+                if (r == undefined) {
+                    return [];
+                }
+                retval.push(r);
+            }
+            console.log("retval = " + retval);
+            let not0 = retval.filter(num => num != 0);
+            if (not0.length > 1) {
+                let numbers = [];
+                for (let i = 0; i < this.settings.rank + 1 - not0.length; i++) {
+                    numbers.push('');
+                }
+                for (let i = 0; i < not0.length; i++) {
+                    numbers.push(not0[i]);
+                }
+                this.serialindex++;
+                console.log("serialindex++");
+                this.settings.count--;
+                return numbers;
+            }
+            console.log("retval[0]+10;")
+            retval = [retval[0]+10];
+            for (let i = 0; i < this.settings.rank; i++) {
+                const r = this.getNextValue(retval.reduce((sum, elm) => { return sum + elm; }));
+                console.log('getNextValue again return ' + r + ' .');
+                if (r == undefined) {
+                    return [];
+                }
+                retval.push(r);
+            }
+            not0 = retval.filter(num => num != 0);
+            if (not0.length > 1) {
+                let numbers = [];
+                for (let i = 0; i < this.settings.rank + 1 - not0.length; i++) {
+                    numbers.push('');
+                }
+                for (let i = 0; i < not0.length; i++) {
+                    numbers.push(not0[i]);
+                }
+                this.serialindex++;
+                console.log("serialindex++");
+                this.settings.count--;
+                return numbers;
+            }
+            this.serialindex++;
+            console.log("serialindex++");
+            return this.makeNumbers();
+        }
+        constructor(settings) {
+            this.settings = settings;
+
+            this.ptn_tbl = [
+                [ // add 
+                    [ // add ptn = 0
+                            /* 0 */[1, 2, 3, 4, 5, 6, 7, 8, 9],
+                            /* 1 */[1, 2, 3, 0, 5, 6, 7, 8, 0],
+                            /* 2 */[1, 2, 0, 0, 5, 6, 7, 0, 0],
+                            /* 3 */[1, 0, 0, 0, 5, 6, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 5 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 6 */[1, 2, 3, 0, 0, 0, 0, 0, 0],
+                            /* 7 */[1, 2, 0, 0, 0, 0, 0, 0, 0],
+                            /* 8 */[1, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // add ptn = 1
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 4, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 3, 4, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 4 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // add ptn = 2
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 4, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 3, 4, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 9 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                    ],
+                    [ // add ptn = 3
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 5, 0, 0, 0, 0]
+                    ],
+                    [ // add ptn = 4
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 0, 0, 9],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 8, 9],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 7, 8, 9],
+                            /* 4 */[0, 0, 0, 0, 0, 6, 7, 8, 9],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 0, 0, 9],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 8, 9],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 7, 8, 9],
+                            /* 9 */[0, 0, 0, 0, 0, 6, 7, 8, 9]
+                    ],
+                    [ // add ptn = 5
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 6, 7, 8, 9],
+                            /* 6 */[0, 0, 0, 0, 0, 6, 7, 8, 0],
+                            /* 7 */[0, 0, 0, 0, 0, 6, 7, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 0, 6, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    ]
+                ],
+                [ // sub
+                    [ // sub ptn = 0
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[1, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 2 */[1, 2, 0, 0, 0, 0, 0, 0, 0],
+                            /* 3 */[1, 2, 3, 0, 0, 0, 0, 0, 0],
+                            /* 4 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 6 */[1, 0, 0, 0, 5, 6, 0, 0, 0],
+                            /* 7 */[1, 2, 0, 0, 5, 6, 7, 0, 0],
+                            /* 8 */[1, 2, 3, 0, 5, 6, 7, 8, 0],
+                            /* 9 */[1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    ],
+                    [ // sub ptn = 1
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 3, 4, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 4, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // sub ptn = 2
+                            /* 0 */[1, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 2, 3, 4, 0, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 3, 4, 0, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 4, 0, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // sub ptn = 3
+                            /* 0 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 4 */[0, 0, 0, 0, 5, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // sub ptn = 4
+                            /* 0 */[0, 0, 0, 0, 0, 6, 7, 8, 9],
+                            /* 1 */[0, 0, 0, 0, 0, 0, 7, 8, 9],
+                            /* 2 */[0, 0, 0, 0, 0, 0, 0, 8, 9],
+                            /* 3 */[0, 0, 0, 0, 0, 0, 0, 0, 9],
+                            /* 4 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 5 */[0, 0, 0, 0, 0, 6, 7, 8, 9],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 7, 8, 9],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 8, 9],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 0, 0, 9],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ],
+                    [ // sub ptn = 5
+                            /* 0 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 1 */[0, 0, 0, 0, 0, 6, 0, 0, 0],
+                            /* 2 */[0, 0, 0, 0, 0, 6, 7, 0, 0],
+                            /* 3 */[0, 0, 0, 0, 0, 6, 7, 8, 0],
+                            /* 4 */[0, 0, 0, 0, 0, 6, 7, 8, 9],
+                            /* 5 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 6 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 7 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 8 */[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            /* 9 */[0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    ]
+                ]
+            ];
+        }
+    }
+    class RandomNumberGenerator extends NumberGenerator {
+        acceptableDigit = (inVal) => {
+            const lower = inVal % 10;
+            const upper = inVal - lower;
+            const pm = this.getAddSub();
+
+            let boxes = [];
+            for (let i = 0; i < this.settings.ptns.length; i++) {
+                if (this.settings.ptns[i]) {
+                    boxes.push(i);
+                }
+            }
+            let ptn = boxes[Math.floor(Math.random() * boxes.length)];
+
+            let s = new Set();
+
+            this.ptn_tbl[pm][ptn][lower].forEach((val) => { if(val){s.add(val);} });
+            let retval = [];
+            if (pm == 0) { // 足し算の場合
+                for (let val of s) {
+                    if ((!this.settings.ptns[1]) && (upper == 40) && (lower + val >= 10)) {
+                        continue;
+                    }
+                    if ((!this.settings.ptns[2]) && (upper == 90) && (lower + val >= 10)) {
+                        continue;
+                    }
+                    retval.push(val);
+                }
+            } else {  // 引き算の場合
+                for (let val of s) {
+                    if ((!this.settings.ptns[1]) && (upper == 50) && (lower < val)) {
+                        console.log("(!this.settings.ptns[1]) && (upper == 50) && (lower < val)" + "val = " + val)
+                        continue;
+                    }
+                    if ((!this.settings.ptns[2]) && (upper == 0) && (lower < val)) {
+                        console.log("(!this.settings.ptns[2]) && (upper == 0) && (lower < val)" + "val = " + val);
+                        continue;
+                    }
+                    retval.push(-1 * val);
+                }
+            }
+            console.log("retval[] = " + retval);
+            if (retval.length == 0) {
+                return 0;
+            }
+            return retval[Math.floor(Math.random() * retval.length)];
+        }
+        getSeedNumber = () => {
+            const rate = Math.pow(10, this.settings.digit);
+            const r = Math.floor(Math.random() * rate);
+            if (r == 0) {
+                return 1;
+            }
+            return r;
+        }
+        constructor(settings) {
+            super(settings);
+        }
+    }
+    class OrderedNumberGenerator extends NumberGenerator {
+        acceptableDigit = (inVal) => {
+            console.log("   OrderedNumberGenerator::acceptableDigit(inVal=" + inVal + ")");
+            if (this.serialindex >= 81) {
+                return undefined;
+            }
+            const lower = inVal % 10;
+            const upper = inVal - lower;
+            const pm = this.getAddSub();
+
+            let r = 0;
+            const pm_ptn_tbl = this.ptn_tbl[pm];
+            for (let ptn_no = 0; ptn_no < this.settings.ptns.length; ptn_no++) {
+                if (this.settings.ptns[ptn_no] == false) {
+                    continue;
+                }
+                let i = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9][this.serialindex % 9];
+                console.log("       pm = " + pm + ", ptn_no = " + ptn_no + ", lower = " + lower + ", i = " + i);
+                console.log("       this.ptn_tbl[pm][ptn_no][lower] = " + this.ptn_tbl[pm][ptn_no][lower]);
+                const v = this.ptn_tbl[pm][ptn_no][lower][i];
+                console.log("       v = " + v);
+                if (v != 0) {
+                    r = v;
+                }
+            }
+            if (pm == 1) {
+                r *= -1;
+            }
+            return r;
+        }
+          
+        getSeedNumber_back = () => {
+            console.log("\nserialindex = " + this.serialindex + ", plus5 = " + this.plus5);
+            let r = Math.floor(this.serialindex / 9) + this.plus5;
+            if (this.getAddSub()) {
+                r += 10;
+            }
+            if (r == 0) {
+                r = 10;
+            }
+            return r;
+        }
+        getSeedNumber = () => {
+            console.log("************************** serialindex = " + this.serialindex + " *******************");
+            let r = Math.floor(this.serialindex / 9);
+            return r == 0 ? 10 : r;
+        }
+        constructor(settings) {
+            super(settings);
+            this.serialindex = 0;
+        }
+    }
+    class NOrderedNumberGenerator extends NumberGenerator {
+        acceptableDigit = (inVal) => {
+            console.log("serialIndex = " + this.serialIndex);
+            if (this.serialIndex >= 90) {
+                return undefined;
+            }
+            const lower = inVal % 10;
+            const upper = inVal - lower;
+            const pm = this.getAddSub();
+            console.log("NOrderedNumberGenerator::acceptableDigit(inVal=" + inVal + ")");
+            let r = 0;
+            let x = Math.floor(this.serialIndex / 10);
+            const pm_ptn_tbl = this.ptn_tbl[pm];
+            for (let ptn_no = 0; ptn_no < this.settings.ptns.length; ptn_no++) {
+                if (this.settings.ptns[ptn_no] == false) {
+                    continue;
+                }
+                if (ptn_no == 0) {
+                    if (this.settings.ptns[1] == false &&
+                        this.settings.ptns[2] == false &&
+                        this.settings.ptns[3] == false &&
+                        this.settings.ptns[4] == false &&
+                        this.settings.ptns[5] == false) {
+                        ;
+                    } else if (0 <= x && x <= 3 && (this.settings.ptns[1] || this.settings.ptns[2])) {
+                        ;
+                    } else if (4 == x && (this.settings.ptns[3])) {
+                        ;
+                    } else if (5 <= x && x <= 9 && (this.settings.ptns[4] || this.settings.ptns[5])) {
+                        ;
+                    } else {
+                        continue;
+                    }
+                }
+                const v = this.ptn_tbl[pm][ptn_no][lower][x];
+                console.log("########### appcetableDigit return v = " + v + ", pm = " + pm + ", ptn_no = " + ptn_no + " inVal = " + inVal);
+                if (v != 0) {
+                    r = v;
+                }
+            }
+            if (pm == 1) {
+                r *= -1;
+            }
+            return r;
+        }
+        getSeedNumber = () => {
+            this.serialIndex = this.nextIndex;
+            let r = this.serialIndex % 10;
+            let o = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9];
+            r = o[r];
+            this.nextIndex++;
+            if (this.getAddSub()) {
+                r += 10;
+            }
+            return r == 0 ? 10 : r;
+        }
+        constructor(settings) {
+            super(settings);
+            this.serialIndex = 0;
+            this.nextIndex = 0;
+        }
+    }
+    class NumberGeneratorFactory {
+        constructor() {
+        }
+        static create = (settings) => {
+            if (settings.order == 'rand') {
+                return new RandomNumberGenerator(settings);
+            } else if (settings.order == 'order') {
+                return new OrderedNumberGenerator(settings);
+            } else if (settings.order == 'norder') {
+                return new NOrderedNumberGenerator(settings);
+            }
+        }
+    }
+
+    class AbacusDrillMaker {
+        addStyle = () => {
+            const css = document.createElement('style');
+            css.appendChild(document.createTextNode('form { font-size:16px;}'));
+            css.appendChild(document.createTextNode('input { margin:2px; font-size:16px; }'));
+            css.appendChild(document.createTextNode('label { text-align:center; font-size:16px; }'));
+            css.appendChild(document.createTextNode('input[type=checkbox] { width:16px; height:16px; vertical-align:middle; }'));
+            css.appendChild(document.createTextNode('input[type=radio] { width:16px; height:20px; vertical-align:middle; }'));
+            css.appendChild(document.createTextNode('input[type=number] { height:20px; vertical-align:middle; }'));
+            css.appendChild(document.createTextNode('.digit,.rank,.count { width:60px; }'));
+            css.appendChild(document.createTextNode('.answer { width:100px; text-align:right; }'));
+            css.appendChild(document.createTextNode('input[type=submit] { height:30px; vertical-align:middle; }'));
+            css.appendChild(document.createTextNode('#output { display:flex; flex-wrap:wrap; font-size:38px; }'));
+            css.appendChild(document.createTextNode('.isfalse { background-color:#FFEEEE; }'));
+            css.appendChild(document.createTextNode('.istrue { background-color:#EEFFEE; }'));
+            css.appendChild(document.createTextNode('.exercise { padding:2px; margin:10px; background-color:#F4F7FF; text-align:right; }'));
+            css.appendChild(document.createTextNode('.tg { border-spacing: 0; border-width: 0px; font-size: 18px; margin:20px 0px; text-align: center; vertical-align: middle }'));
+            css.appendChild(document.createTextNode('.tg td { padding: 5px 5px }'));
+            css.appendChild(document.createTextNode('.tg th { padding: 5px 5px }'));
+            css.appendChild(document.createTextNode('.tg .tg-space { border-color: #ffffff; background-color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-header { background-color: #303498; color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern1 { background-color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern2 { background-color: #32cb00 }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern3 { background-color: #009901 }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern4 { background-color: #656565; color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern5 { background-color: #f8ff00 }'));
+            css.appendChild(document.createTextNode('.tg .tg-pattern6 { background-color: #f8a102 }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend1 { background-color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend2 { background-color: #32cb00 }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend3 { background-color: #009901 }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend4 { background-color: #656565; color: #ffffff }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend5 { background-color: #f8ff00 }'));
+            css.appendChild(document.createTextNode('.tg .tg-legend6 { background-color: #ffc702 }'));
+            document.getElementsByTagName('head')[0].appendChild(css);
+        }
+        addInput = () => {
+            const input = document.createElement('div');
+            input.id = 'input';
+            input.innerHTML =
+                '<form name="settings" onSubmit="return false">' +
+                '足し算、引き算：' +
+                '<label><input type="checkbox" name="addsub" value="1" id="add"/>足し算</label>' +
+                '<label><input type="checkbox" name="addsub" value="1" id="sub"/>引き算</label>' +
+                '<br>' +
+                'パターン指定：' +
+                '<label><input type="checkbox" name="pattern" value="1"/>１</label>' +
+                '<label><input type="checkbox" name="pattern" value="1"/>２</label>' +
+                '<label><input type="checkbox" name="pattern" value="1"/>３</label>' +
+                '<label><input type="checkbox" name="pattern" value="1"/>４</label>' +
+                '<label><input type="checkbox" name="pattern" value="1"/>５</label>' +
+                '<label><input type="checkbox" name="pattern" value="1"/>６</label>' +
+                '<label><input type="checkbox" name="pattern_all" value="1"/>全部</label>' +
+                '<br>' +
+                '練習の順番：' +
+                '<label><input type="radio" name="order" value="rand" id="random" checked/>ランダム</label>' +
+                '<label><input type="radio" name="order" value="order" id="order" />Z順番</label>' +
+                '<label><input type="radio" name="order" value="norder" id="norder" />N順番</label>' +
+                '<br>' +
+                '桁数：' +
+                '<input type="number" name="digit" value="2" min="1" max="4" maxlenght="1" class="digit" id="digit"/>' +
+                '計算回数：' +
+                '<input type="number" name="rank" value="2" min="1" max="3" maxlenght="1" class="rank" id="rank"/>' +
+                '問題数：' +
+                '<input type="number" name="count" value="10" min="1" maxlenght="4" class="count"/>&nbsp;&nbsp;&nbsp;' +
+                '<input type="submit" value="作成する" id="submit"/>' +
+                '</form>';
+
+            this.root.appendChild(input);
+            document.getElementById('submit').onclick = this.makeExercises;
+            document.getElementById('random').onclick = () => {
+                document.settings.digit.value = '2'
+                document.settings.digit.readOnly = false;
+                document.settings.rank.value = '2'
+                document.settings.rank.readOnly = false;
+                document.settings.addsub[0].type = 'checkbox'
+                document.settings.addsub[1].type = 'checkbox'
+                document.settings.count.value = 10;
+                document.settings.count.readOnly = false;
+            }
+            document.getElementById('order').onclick = () => {
+                document.settings.digit.value = '1'
+                document.settings.digit.readOnly = true;
+                document.settings.rank.value = '1'
+                document.settings.rank.readOnly = true;
+                document.settings.addsub[0].type = 'radio'
+                document.settings.addsub[1].type = 'radio'
+                document.settings.count.value = 90;
+                document.settings.count.readOnly = true;
+            }
+            document.getElementById('norder').onclick = () => {
+                document.settings.digit.value = '1'
+                document.settings.digit.readOnly = true;
+                document.settings.rank.value = '1'
+                document.settings.rank.readOnly = true;
+                document.settings.addsub[0].type = 'radio'
+                document.settings.addsub[1].type = 'radio'
+                document.settings.count.value = 90;
+                document.settings.count.readOnly = true;
+            }
+            document.getElementsByName('pattern').forEach((node) => {
+                node.addEventListener('input', (ev) => {
+                    let checked_count = 0;
+                    for (let ptn of document.settings.pattern) {
+                        if (ptn.checked) {
+                            checked_count++;
+                        }
+                    }
+                    if (checked_count == 0) {
+                        document.settings.pattern_all.indeterminate = false;
+                        document.settings.pattern_all.checked = false;
+                    } else if (checked_count == 6) {
+                        document.settings.pattern_all.indeterminate = false;
+                        document.settings.pattern_all.checked = true;
+                    } else {
+                        document.settings.pattern_all.indeterminate = true;
+                    }
+                });
+            });
+            document.getElementsByName('pattern_all').forEach((node) => {
+                node.addEventListener('input', (ev) => {
+                    let val = true;
+                    if (document.settings.pattern_all.checked) {
+                        val = true;
+                    } else {
+                        val = false;
+                    }
+                    for (let ptn of document.settings.pattern) {
+                        ptn.checked = val;
+                    }
+                });
+            });
+        }
+        addOutput = () => {
+            const output = document.createElement('div');
+            output.id = 'output';
+            output.innerHTML =
+                '<table class="tg" style="undefined;table-layout: fixed; width: 838px">' +
+                '<colgroup>' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 25px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 35px">' +
+                '<col style="width: 25px">' +
+                '<col style="width: 120px">' +
+                '</colgroup>' +
+                '<thead>' +
+                '<tr>' +
+                '<th class="tg-header"></th>' +
+                '<th class="tg-header">+1</th>' +
+                '<th class="tg-header">+2</th>' +
+                '<th class="tg-header">+3</th>' +
+                '<th class="tg-header">+4</th>' +
+                '<th class="tg-header">+5</th>' +
+                '<th class="tg-header">+6</th>' +
+                '<th class="tg-header">+7</th>' +
+                '<th class="tg-header">+8</th>' +
+                '<th class="tg-header">+9</th>' +
+                '<th class="tg-space"></th>' +
+                '<th class="tg-header"></th>' +
+                '<th class="tg-header">-1</th>' +
+                '<th class="tg-header">-2</th>' +
+                '<th class="tg-header">-3</th>' +
+                '<th class="tg-header">-4</th>' +
+                '<th class="tg-header">-5</th>' +
+                '<th class="tg-header">-6</th>' +
+                '<th class="tg-header">-7</th>' +
+                '<th class="tg-header">-8</th>' +
+                '<th class="tg-header">-9</th>' +
+                '<th class="tg-space"></th>' +
+                '<th class="tg-space"></th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                '<tr>' +
+                '<td class="tg-header">0</td>' +
+                '<td class="tg-pattern1">1</td>' +
+                '<td class="tg-pattern1">2</td>' +
+                '<td class="tg-pattern1">3</td>' +
+                '<td class="tg-pattern1">4</td>' +
+                '<td class="tg-pattern1">5</td>' +
+                '<td class="tg-pattern1">6</td>' +
+                '<td class="tg-pattern1">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">10</td>' +
+                '<td class="tg-pattern3">9</td>' +
+                '<td class="tg-pattern3">8</td>' +
+                '<td class="tg-pattern3">7</td>' +
+                '<td class="tg-pattern3">6</td>' +
+                '<td class="tg-pattern4">5</td>' +
+                '<td class="tg-pattern5">4</td>' +
+                '<td class="tg-pattern5">3</td>' +
+                '<td class="tg-pattern5">2</td>' +
+                '<td class="tg-pattern5">1</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend1">パターン１</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">1</td>' +
+                '<td class="tg-pattern1">2</td>' +
+                '<td class="tg-pattern1">3</td>' +
+                '<td class="tg-pattern1">4</td>' +
+                '<td class="tg-pattern2">5</td>' +
+                '<td class="tg-pattern1">6</td>' +
+                '<td class="tg-pattern1">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern5">10</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern3">9</td>' +
+                '<td class="tg-pattern3">8</td>' +
+                '<td class="tg-pattern3">7</td>' +
+                '<td class="tg-pattern4">6</td>' +
+                '<td class="tg-pattern6">5</td>' +
+                '<td class="tg-pattern5">4</td>' +
+                '<td class="tg-pattern5">3</td>' +
+                '<td class="tg-pattern5">2</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend2">パターン２</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">2</td>' +
+                '<td class="tg-pattern1">3</td>' +
+                '<td class="tg-pattern1">4</td>' +
+                '<td class="tg-pattern2">5</td>' +
+                '<td class="tg-pattern2">6</td>' +
+                '<td class="tg-pattern1">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern5">10</td>' +
+                '<td class="tg-pattern5">11</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern3">9</td>' +
+                '<td class="tg-pattern3">8</td>' +
+                '<td class="tg-pattern4">7</td>' +
+                '<td class="tg-pattern6">6</td>' +
+                '<td class="tg-pattern6">5</td>' +
+                '<td class="tg-pattern5">4</td>' +
+                '<td class="tg-pattern5">3</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend3">パターン３</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">3</td>' +
+                '<td class="tg-pattern1">4</td>' +
+                '<td class="tg-pattern2">5</td>' +
+                '<td class="tg-pattern2">6</td>' +
+                '<td class="tg-pattern2">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern5">10</td>' +
+                '<td class="tg-pattern5">11</td>' +
+                '<td class="tg-pattern5">12</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">13</td>' +
+                '<td class="tg-pattern1">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern3">9</td>' +
+                '<td class="tg-pattern4">8</td>' +
+                '<td class="tg-pattern6">7</td>' +
+                '<td class="tg-pattern6">6</td>' +
+                '<td class="tg-pattern6">5</td>' +
+                '<td class="tg-pattern5">4</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend4">パターン４</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">4</td>' +
+                '<td class="tg-pattern2">5</td>' +
+                '<td class="tg-pattern2">6</td>' +
+                '<td class="tg-pattern2">7</td>' +
+                '<td class="tg-pattern2">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern5">10</td>' +
+                '<td class="tg-pattern5">11</td>' +
+                '<td class="tg-pattern5">12</td>' +
+                '<td class="tg-pattern5">13</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">14</td>' +
+                '<td class="tg-pattern1">13</td>' +
+                '<td class="tg-pattern1">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern4">9</td>' +
+                '<td class="tg-pattern6">8</td>' +
+                '<td class="tg-pattern6">7</td>' +
+                '<td class="tg-pattern6">6</td>' +
+                '<td class="tg-pattern6">5</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend5">パターン５</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">5</td>' +
+                '<td class="tg-pattern1">6</td>' +
+                '<td class="tg-pattern1">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern4">10</td>' +
+                '<td class="tg-pattern6">11</td>' +
+                '<td class="tg-pattern6">12</td>' +
+                '<td class="tg-pattern6">13</td>' +
+                '<td class="tg-pattern6">14</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">15</td>' +
+                '<td class="tg-pattern2">14</td>' +
+                '<td class="tg-pattern2">13</td>' +
+                '<td class="tg-pattern2">12</td>' +
+                '<td class="tg-pattern2">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern5">9</td>' +
+                '<td class="tg-pattern5">8</td>' +
+                '<td class="tg-pattern5">7</td>' +
+                '<td class="tg-pattern5">6</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-legend6">パターン６</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">6</td>' +
+                '<td class="tg-pattern1">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern3">10</td>' +
+                '<td class="tg-pattern4">11</td>' +
+                '<td class="tg-pattern6">12</td>' +
+                '<td class="tg-pattern6">13</td>' +
+                '<td class="tg-pattern6">14</td>' +
+                '<td class="tg-pattern5">15</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">16</td>' +
+                '<td class="tg-pattern1">15</td>' +
+                '<td class="tg-pattern2">14</td>' +
+                '<td class="tg-pattern2">13</td>' +
+                '<td class="tg-pattern2">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern5">9</td>' +
+                '<td class="tg-pattern5">8</td>' +
+                '<td class="tg-pattern5">7</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-space"></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">7</td>' +
+                '<td class="tg-pattern1">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern3">10</td>' +
+                '<td class="tg-pattern3">11</td>' +
+                '<td class="tg-pattern4">12</td>' +
+                '<td class="tg-pattern6">13</td>' +
+                '<td class="tg-pattern6">14</td>' +
+                '<td class="tg-pattern5">15</td>' +
+                '<td class="tg-pattern5">16</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">17</td>' +
+                '<td class="tg-pattern1">16</td>' +
+                '<td class="tg-pattern1">15</td>' +
+                '<td class="tg-pattern2">14</td>' +
+                '<td class="tg-pattern2">13</td>' +
+                '<td class="tg-pattern1">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern5">9</td>' +
+                '<td class="tg-pattern5">8</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-space"></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">8</td>' +
+                '<td class="tg-pattern1">9</td>' +
+                '<td class="tg-pattern3">10</td>' +
+                '<td class="tg-pattern3">11</td>' +
+                '<td class="tg-pattern3">12</td>' +
+                '<td class="tg-pattern4">13</td>' +
+                '<td class="tg-pattern6">14</td>' +
+                '<td class="tg-pattern5">15</td>' +
+                '<td class="tg-pattern5">16</td>' +
+                '<td class="tg-pattern5">17</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">18</td>' +
+                '<td class="tg-pattern1">17</td>' +
+                '<td class="tg-pattern1">16</td>' +
+                '<td class="tg-pattern1">15</td>' +
+                '<td class="tg-pattern2">14</td>' +
+                '<td class="tg-pattern1">13</td>' +
+                '<td class="tg-pattern1">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-pattern5">9</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-space"></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td class="tg-header">9</td>' +
+                '<td class="tg-pattern3">10</td>' +
+                '<td class="tg-pattern3">11</td>' +
+                '<td class="tg-pattern3">12</td>' +
+                '<td class="tg-pattern3">13</td>' +
+                '<td class="tg-pattern4">14</td>' +
+                '<td class="tg-pattern5">15</td>' +
+                '<td class="tg-pattern5">16</td>' +
+                '<td class="tg-pattern5">17</td>' +
+                '<td class="tg-pattern5">18</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-header">19</td>' +
+                '<td class="tg-pattern1">18</td>' +
+                '<td class="tg-pattern1">17</td>' +
+                '<td class="tg-pattern1">16</td>' +
+                '<td class="tg-pattern1">15</td>' +
+                '<td class="tg-pattern1">14</td>' +
+                '<td class="tg-pattern1">13</td>' +
+                '<td class="tg-pattern1">12</td>' +
+                '<td class="tg-pattern1">11</td>' +
+                '<td class="tg-pattern1">10</td>' +
+                '<td class="tg-space"></td>' +
+                '<td class="tg-space"></td>' +
+                '</tr>' +
+                '</tbody>' +
+                '</table>';
+            this.root.appendChild(output);
+        }
+        getSettings = () => {
+            return {
+                'addsub': [document.settings.addsub[0].checked,
+                document.settings.addsub[1].checked],
+                'ptns': [
+                    document.settings.pattern[0].checked,
+                    document.settings.pattern[1].checked,
+                    document.settings.pattern[2].checked,
+                    document.settings.pattern[3].checked,
+                    document.settings.pattern[4].checked,
+                    document.settings.pattern[5].checked
+                ],
+                'order': document.settings.order.value,
+                'digit': parseInt(document.settings.digit.value),
+                'rank': parseInt(document.settings.rank.value),
+                'count': parseInt(document.settings.count.value)
+            };
+        }
+        clearInput = () => {
+            const input = document.getElementById('input');
+            while (input.firstChild) {
+                input.removeChild(input.firstChild);
+            }
+        }
+        clearOutput = () => {
+            const output = document.getElementById('output');
+            while (output.firstChild) {
+                output.removeChild(output.firstChild);
+            }
+        }
+        appendExercise = (numbers) => {
+            const div = document.createElement('div');
+            div.className = 'exercise';
+            let answer = 0;
+            for (const num of numbers) {
+                div.innerHTML += num + "<BR>";
+                const p = parseInt(num);
+                if (!Number.isNaN(p)) {
+                    answer += p;
+                }
+            }
+            div.innerHTML += '<hr/>';
+            div.innerHTML += '<input type="text" class="answer isfalse" data-answer="' + answer + '">';
+
+            document.getElementById('output').appendChild(div);
+        }
+        checkValue = (e) => {
+            if (e.target.value == e.target.dataset.answer) {
+                e.target.classList.remove("isfalse");
+                e.target.classList.add("istrue");
+            } else {
+                e.target.classList.remove("istrue");
+                e.target.classList.add("isfalse");
+            }
+        }
+        makeExercises = () => {
+            this.clearOutput();
+            const settings = this.getSettings();
+            let numgen = NumberGeneratorFactory.create(settings);
+            if (numgen.getAddSub() == undefined) {
+                alert("check add or sub or both");
+                return;
+            }
+            const rdc = numgen.settings.ptns.reduce((sum, fl) => { if (fl) { return sum + 1; } else { return sum; } });
+            if (!rdc) {
+                alert("check some patterns");
+                return;
+            }
+            do {
+                const numbers = numgen.makeNumbers();
+                if (numbers.length) {
+                    this.appendExercise(numbers);
+                } else {
+                    break;
+                }
+            } while (1)
+            //clearInput();
+            document.querySelectorAll('.answer').forEach((exercise) => {
+                exercise.addEventListener('input', (ev) => { this.checkValue(ev); });
+            });
+        }
+        make = () => {
+            this.addStyle();
+            this.addInput();
+            this.addOutput();
+        }
+        constructor(root) {
+            this.root = root;
+        }
+    }
+    const adm = new AbacusDrillMaker(document.getElementsByTagName('body')[0]);
+    adm.make();
+</script>
+
+</html>
