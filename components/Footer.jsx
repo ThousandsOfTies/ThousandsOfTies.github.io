@@ -199,8 +199,8 @@ function Footer() {
           </div>
           <FooterCol title="Apps" links={[
             ["TutoTuto", "https://thousandsofties.github.io/TutoTuto/"],
-            ["DoriDori", "https://thousandsofties.github.io/doridori/"],
-            ["AI-LiveTalk", "https://thousandsofties.github.io/ai-livetalk/"],
+            ["DoriDori", "https://thousandsofties.github.io/DoriDori/"],
+            ["AI-LiveTalk", "https://thousandsofties.github.io/AI-LiveTalk/"],
           ]} />
           <FooterCol title="Pages" links={[
             ["About", "#about"],
